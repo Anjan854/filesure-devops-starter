@@ -46,13 +46,18 @@ jobs:
           az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP }} \
                                  --name ${{ secrets.AKS_CLUSTER_NAME }} \
                                  --overwrite-existing
+      
+      #creating secrets for app
       - name: Create Kubernetes Secret for App
         run: |
           kubectl create secret generic app-secrets \
             --from-literal=MONGO_URI="${{ secrets.MONGO_URI }}" \
             --from-literal=AZURE_BLOB_CONN="${{ secrets.AZURE_BLOB_CONN }}" \
             --dry-run=client -o yaml | kubectl apply -f -
-
+      # namespace creation
+      - name: Create namespace if not exists
+        run: |
+          kubectl get namespace my-project || kubectl create namespace my-project
       
       # Step 7: Deploy to AKS (apply Kubernetes YAMLs)
       - name: Deploy to AKS
