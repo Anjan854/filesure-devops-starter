@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: filesureregistry.azurecr.io/api:latest
+        image: filesureregistry01.azurecr.io/api:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5001

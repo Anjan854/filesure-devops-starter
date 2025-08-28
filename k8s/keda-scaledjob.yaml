@@ -16,7 +16,7 @@ spec:
       spec:
         containers:
         - name: document-downloader
-          image: filesureregistry.azurecr.io/api:latest
+          image: filesureregistry01.azurecr.io/api:latest
           imagePullPolicy: Always
           ports:
           - containerPort: 9100
