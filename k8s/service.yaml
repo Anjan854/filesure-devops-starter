@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: document-downloader-metrics
+  namespace: default
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9100"
+    prometheus.io/path: "/metrics"
+spec:
+  selector:
+    app: document-downloader
+  ports:
+  - name: metrics
+    port: 9100
+    targetPort: 9100
+    protocol: TCP

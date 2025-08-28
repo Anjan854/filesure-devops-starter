@@ -1,0 +1,212 @@
+{
+  "title": "Document Downloader Metrics",
+  "panels": [
+    {
+      "title": "Jobs Processed",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(jobs_processed_total)",
+          "legendFormat": "Processed Jobs"
+        }
+      ],
+      "id": 1
+    },
+    {
+      "title": "Jobs Found",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(jobs_found_total)",
+          "legendFormat": "Jobs Found"
+        }
+      ],
+      "id": 2
+    },
+    {
+      "title": "Jobs Failed",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(jobs_failed_total)",
+          "legendFormat": "Failed Jobs"
+        }
+      ],
+      "id": 3
+    },
+    {
+      "title": "Documents Downloaded",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(documents_downloaded_total)",
+          "legendFormat": "Downloaded Docs"
+        }
+      ],
+      "id": 4
+    },
+    {
+      "title": "Documents Uploaded",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(documents_uploaded_total)",
+          "legendFormat": "Uploaded Docs"
+        }
+      ],
+      "id": 5
+    },
+    {
+      "title": "Pending Jobs",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(pending_jobs)",
+          "legendFormat": "Pending"
+        }
+      ],
+      "id": 6
+    },
+    {
+      "title": "Completed Jobs",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(completed_jobs)",
+          "legendFormat": "Pending"
+        }
+      ],
+      "id": 7
+    },
+    {
+      "title": "CPU Usage by Pod",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{pod=~\"document-downloader.*\"}[5m])) by (pod)",
+          "legendFormat": "{{pod}}"
+        }
+      ],
+      "id": 8
+    },
+    {
+      "title": "Memory Usage by Pod",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(container_memory_usage_bytes{pod=~\"document-downloader.*\"}) by (pod)",
+          "legendFormat": "{{pod}}"
+        }
+      ],
+      "id": 9
+    }
+  ],
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "10s",
+  "datasource": {
+    "type": "prometheus",
+    "uid": "Prometheus"
+  },
+  "alertRules": [
+    {
+      "uid": "alert-1",
+      "title": "High Pending Jobs Alert",
+      "condition": "gt",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "datasourceUid": "-100",
+          "model": {
+            "expr": "pending_jobs",
+            "interval": "",
+            "legendFormat": "",
+            "refId": "A"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "annotations": {},
+      "labels": {},
+      "type": "query",
+      "thresholds": [
+        {
+          "color": "red",
+          "value": 50
+        }
+      ]
+    },
+    {
+      "uid": "alert-2",
+      "title": "High Job Failures Alert",
+      "condition": "gt",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "datasourceUid": "-100",
+          "model": {
+            "expr": "jobs_failed_total",
+            "interval": "",
+            "legendFormat": "",
+            "refId": "A"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "annotations": {},
+      "labels": {},
+      "type": "query",
+      "thresholds": [
+        {
+          "color": "red",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "uid": "alert-3",
+      "title": "High Active Jobs Alert",
+      "condition": "gt",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "datasourceUid": "-100",
+          "model": {
+            "expr": "active_jobs",
+            "interval": "",
+            "legendFormat": "",
+            "refId": "A"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "annotations": {},
+      "labels": {},
+      "type": "query",
+      "thresholds": [
+        {
+          "color": "red",
+          "value": 20
+        }
+      ]
+    }
+  ]
+}

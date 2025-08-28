@@ -1,0 +1,190 @@
+{
+  "title": "API Service Metrics",
+  "panels": [
+    {
+      "title": "Total Requests",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(requests_total)",
+          "legendFormat": "Requests"
+        }
+      ],
+      "id": 1
+    },
+    {
+      "title": "DB Write Failures",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(db_write_failures)",
+          "legendFormat": "Write Failures"
+        }
+      ],
+      "id": 2
+    },
+    {
+      "title": "Jobs Created",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(jobs_created_total)",
+          "legendFormat": "Jobs Created"
+        }
+      ],
+      "id": 3
+    },
+    {
+      "title": "Job Creation Failures",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(jobs_created_failures)",
+          "legendFormat": "Creation Failures"
+        }
+      ],
+      "id": 4
+    },
+    {
+      "title": "MongoDB Operations",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(mongodb_operations_total) by (operation)",
+          "legendFormat": "{{operation}}"
+        }
+      ],
+      "id": 5
+    },
+    {
+      "title": "CPU Usage by Pod",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{pod=~\"flask-api.*\"}[5m])) by (pod)",
+          "legendFormat": "{{pod}}"
+        }
+      ],
+      "id": 6
+    },
+    {
+      "title": "Memory Usage by Pod",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(container_memory_usage_bytes{pod=~\"flask-api.*\"}) by (pod)",
+          "legendFormat": "{{pod}}"
+        }
+      ],
+      "id": 7
+    }
+  ],
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "10s",
+  "datasource": {
+    "type": "prometheus",
+    "uid": "Prometheus"
+  },
+  "alertRules": [
+    {
+      "uid": "alert-1",
+      "title": "High DB Write Failures Alert",
+      "condition": "gt",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "datasourceUid": "-100",
+          "model": {
+            "expr": "db_write_failures",
+            "interval": "",
+            "legendFormat": "",
+            "refId": "A"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "annotations": {},
+      "labels": {},
+      "type": "query",
+      "thresholds": [
+        {
+          "color": "red",
+          "value": 5
+        }
+      ]
+    },
+    {
+      "uid": "alert-2",
+      "title": "Slow Requests Alert",
+      "condition": "gt",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "datasourceUid": "-100",
+          "model": {
+            "expr": "request_duration_seconds",
+            "interval": "",
+            "legendFormat": "",
+            "refId": "A"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "annotations": {},
+      "labels": {},
+      "type": "query",
+      "thresholds": [
+        {
+          "color": "red",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "uid": "alert-3",
+      "title": "High Jobs Created Failures Alert",
+      "condition": "gt",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "datasourceUid": "-100",
+          "model": {
+            "expr": "jobs_created_failures",
+            "interval": "",
+            "legendFormat": "",
+            "refId": "A"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "annotations": {},
+      "labels": {},
+      "type": "query",
+      "thresholds": [
+        {
+          "color": "red",
+          "value": 10
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: document-downloader-scaledjob
+  namespace: default
+spec:
+  jobTargetRef:
+    template:
+      metadata:
+        labels:
+          app: document-downloader
+        annotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "9100"
+          prometheus.io/path: "/metrics"
+      spec:
+        containers:
+        - name: document-downloader
+          image: filesureregistry.azurecr.io/api:latest
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 9100
+            name: metrics
+            protocol: TCP
+          env:
+          - name: MONGO_URI
+            valueFrom:
+              secretKeyRef:
+                name: app-secrets
+                key: MONGO_URI
+          - name: AZURE_BLOB_CONN
+            valueFrom:
+              secretKeyRef:
+                name: app-secrets
+                key: AZURE_BLOB_CONN
+          - name: AZURE_CONTAINER
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: AZURE_CONTAINER
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 20
+            periodSeconds: 5
+        restartPolicy: OnFailure
+    backoffLimit: 3
+    activeDeadlineSeconds: 3600 # 1 hour timeout
+  pollingInterval: 30 # Check for new jobs every 30 seconds
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  maxReplicaCount: 20 # Maximum concurrent jobs
+  scalingStrategy:
+    strategy: "accurate" # This ensures we don't over-provision
+  triggers:
+  - type: mongodb
+    metadata:
+      connectionStringFromEnv: MONGO_URI
+      dbName: filesure
+      collection: jobs
+      query: '{"jobStatus": "pending"}'
+      queryValue: "1" # Scale based on number of pending jobs
+      activationQueryValue: "1" # Start scaling when there's at least 1 pending job
+      # This will pass the job ID to the container
+      jobIdPath: "_id"
