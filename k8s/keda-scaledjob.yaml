@@ -16,7 +16,7 @@ spec:
       spec:
         containers:
         - name: document-downloader
-          image: filesureregistry01.azurecr.io/api:latest
+          image: filesureregistry01.azurecr.io/worker:latest
           imagePullPolicy: Always
           ports:
           - containerPort: 9100
@@ -45,18 +45,6 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-          livenessProbe:
-            httpGet:
-              path: /metrics
-              port: metrics
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /metrics
-              port: metrics
-            initialDelaySeconds: 20
-            periodSeconds: 5
         restartPolicy: OnFailure
     backoffLimit: 3
     activeDeadlineSeconds: 3600 # 1 hour timeout
