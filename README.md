@@ -16,15 +16,47 @@ This project is a **Document Processing System** built with **Flask API**, **Azu
   - Deploying to **Azure Kubernetes Service (AKS)**.
 
 ---
+## Project structure
 
+```
+├── api
+│   ├── app.py
+│   ├── Dockerfile
+│   └── requirements.txt
+├── api_dashboard_with_alerts.json
+├── downloader_dashboard_with_alerts.json
+├── k8s
+│   ├── api-deployment.yaml          # API Deployment + Service
+│   ├── configmap.yaml               # Non-secret config (e.g., AZURE_CONTAINER)
+│   ├── keda-scaledjob.yaml          # Worker as a KEDA ScaledJob
+│   ├── secrets.yaml                 # (Do NOT commit; created by CI instead)
+│   └── service.yaml                 # Service that exposes worker metrics for Prometheus
+└── worker
+    ├── Dockerfile
+    ├── downloader.py                # Exposes /metrics on :9100 and runs the job
+    ├── requirements.txt
+    └── run_with_job_id.py
+```
 ## 🛠️ Project Architecture
 ```
-Client → Flask API → MongoDB + Azure Blob Storage
-                      |
-                      ↓
-            Document Downloader (KEDA ScaledJob)
-                      |
-                Metrics (Prometheus)
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Web UI        │    │   MongoDB        │    │  Azure Blob     │
+│   (Port 5001)   │◄──►│   - jobs         │◄──►│   Storage       │
+│                 │    │   - documents    │    │   (text files)  │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                        │                       ▲
+         ▼                        ▼                       │
+┌─────────────────┐    ┌──────────────────┐               │
+│   API Service   │    │  KEDA ScaledJob  │─────────────-─┘
+│   /create-job   │    │  Worker Pods     │
+│   /metrics      │    │  /metrics:9100   │
+└─────────────────┘    └──────────────────┘
+         │                        │
+         ▼                        ▼
+┌─────────────────┐    ┌──────────────────┐
+│   Prometheus    │    │    Grafana       │
+│   (Scraping)    │◄──►│   (Dashboard)    │
+└─────────────────┘    └──────────────────┘
 ```
 
 ---
@@ -43,7 +75,7 @@ Client → Flask API → MongoDB + Azure Blob Storage
 ---
 
 ## ⚙️ Prerequisites
-Before running this project, make sure you have:
+
 - **Azure account** with:
   - AKS cluster created
   - ACR (Azure Container Registry) created
