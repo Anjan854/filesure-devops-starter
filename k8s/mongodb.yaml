@@ -22,7 +22,7 @@ spec:
             - name: MONGO_INITDB_ROOT_USERNAME
               value: "admin"
             - name: MONGO_INITDB_ROOT_PASSWORD
-              value: "adminpassword"
+              value: "admin123"
           volumeMounts:
             - name: mongodb-storage
               mountPath: /data/db
